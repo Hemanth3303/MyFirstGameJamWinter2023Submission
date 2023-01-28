@@ -1,0 +1,9 @@
+venv/
+bin/
+bin-int/
+debug/
+release/
+build/
+__pycache__/
+.vscode/
+*.spec
