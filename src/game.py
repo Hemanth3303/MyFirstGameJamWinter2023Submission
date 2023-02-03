@@ -60,8 +60,14 @@ class Game:
             self.player.update(self.dt)
             for top_pipe in self.top_pipes:
                 top_pipe.update(self.dt)
+                if top_pipe.rect.x+top_pipe.rect.width<0:
+                    self.top_pipes.remove(top_pipe)
             for bottom_pipe in self.bottom_pipes:
                 bottom_pipe.update(self.dt)
+                if bottom_pipe.rect.x+bottom_pipe.rect.width<0:
+                    self.bottom_pipes.remove(bottom_pipe)
+
+        print(f'''TOP PIPES: {len(self.top_pipes)}, BOTTOM PIPES: {len(self.bottom_pipes)}''')
 
     def render(self):
         self.screen.fill((0, 0, 0))

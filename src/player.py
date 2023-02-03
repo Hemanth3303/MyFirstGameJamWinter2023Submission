@@ -12,6 +12,7 @@ class Player:
     def update(self, dt):
         self.rect.topleft+=self.vel*dt
 
+        # drag effect
         if self.vel.x!=0 and self.vel.x>1:
             self.vel.x-=PLAYER_DRAG*PLAYER_SPEED
         if self.vel.x!=0 and self.vel.x<1:
