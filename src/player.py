@@ -1,11 +1,11 @@
 import pygame
 from config import *
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group):
-        super().__init__(group)
-        self.image=pygame.image.load("res/sprites/blob.png").convert_alpha()
-        self.rect=self.image.get_rect(topleft=pos)
+class Player:
+    def __init__(self, pos, size):
+        self.sprite=pygame.Surface(size)
+        self.sprite.fill(BLUE)
+        self.rect=pygame.Rect(pos, size)
 
         self.vel=pygame.Vector2(0, 0)
 
@@ -20,3 +20,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.y=0
         if self.rect.y+self.rect.height > SCREEN_HEIGHT:
             self.rect.y=SCREEN_HEIGHT-self.rect.height
+
+    def draw(self, target_surface):
+        target_surface.blit(self.sprite, self.rect)
