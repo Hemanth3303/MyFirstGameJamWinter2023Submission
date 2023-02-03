@@ -38,14 +38,10 @@ class Game:
             self.player.vel.x=-PLAYER_SPEED
         elif keys[pygame.K_d]:
             self.player.vel.x=PLAYER_SPEED
-        else:
-            self.player.vel.x=0
         if keys[pygame.K_w]:
             self.player.vel.y=-PLAYER_SPEED
         elif keys[pygame.K_s]:
             self.player.vel.y=PLAYER_SPEED
-        else:
-            self.player.vel.y=0
 
     def update(self):
         if self.state==State.EXIT:
@@ -85,15 +81,16 @@ class Game:
         sys.exit(0)
 
     def spawn_pipes(self):
-        pipe_gap=randint(60, 200)
+        pipe_gap=randint(30, 120)
         top_x=SCREEN_WIDTH+PIPE_WIDTH
         top_y=randint(-PIPE_HEIGHT/4, 0)
         top=Pipe((top_x, top_y), (PIPE_WIDTH, PIPE_HEIGHT))
         self.top_pipes.append(top)
-        print("spawned top")
+        # print("spawned top")
 
         bottom_x=top_x
         bottom_y=top_y+pipe_gap+PIPE_HEIGHT
-        bottom=Pipe((bottom_x, bottom_y), (PIPE_WIDTH, PIPE_HEIGHT+200))
+        PIPE_PADDING=200 # to make sure bottom pipe doesn't lift off the screen bottom
+        bottom=Pipe((bottom_x, bottom_y), (PIPE_WIDTH, PIPE_HEIGHT+PIPE_PADDING))
         self.bottom_pipes.append(bottom)
-        print("spawned bottom")
+        # print("spawned bottom")

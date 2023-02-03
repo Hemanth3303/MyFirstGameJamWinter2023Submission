@@ -12,6 +12,15 @@ class Player:
     def update(self, dt):
         self.rect.topleft+=self.vel*dt
 
+        if self.vel.x!=0 and self.vel.x>1:
+            self.vel.x-=PLAYER_DRAG*PLAYER_SPEED
+        if self.vel.x!=0 and self.vel.x<1:
+            self.vel.x+=PLAYER_DRAG*PLAYER_SPEED
+        if self.vel.y!=0 and self.vel.y>1:
+            self.vel.y-=PLAYER_DRAG*PLAYER_SPEED
+        if self.vel.y!=0 and self.vel.y<1:
+            self.vel.y+=PLAYER_DRAG*PLAYER_SPEED
+
         if self.rect.x < 0:
             self.rect.x=0
         if self.rect.x+self.rect.width > SCREEN_WIDTH:
