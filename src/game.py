@@ -2,6 +2,7 @@ import pygame
 import sys
 from config import *
 from states import *
+from player import *
 
 class Game:
     def __init__(self):
@@ -11,14 +12,9 @@ class Game:
         self.screen=pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.DOUBLEBUF)
         self.clock=pygame.time.Clock()
         self.state=State.PLAYING
+        self.entities=pygame.sprite.Group()
 
-        self.player=pygame.image.load("src/res/sprites/blob.png").convert_alpha()
-        self.playerRect=self.player.get_rect()
-        self.playerRect.x=300
-        self.playerRect.y=200
-
-        self.dx=0
-        self.dy=0
+        self.player=Player(pygame.Vector2(100, 100), self.entities)
 
         self.dt=0
         self.fps=0
@@ -30,32 +26,40 @@ class Game:
                 self.state=State.EXIT
 
         keys=pygame.key.get_pressed()
-        for key in keys:
-            if keys[pygame.K_ESCAPE]:
-                self.state=State.EXIT
+        if keys[pygame.K_ESCAPE]:
+            self.state=State.EXIT
 
-            if keys[pygame.K_a]:
-                self.dx=-PLAYER_SPEED
-            if keys[pygame.K_d]:
-                self.dx=PLAYER_SPEED
-            if keys[pygame.K_w]:
-                self.dy=-PLAYER_SPEED
-            if keys[pygame.K_s]:
-                self.dy=PLAYER_SPEED
+        if keys[pygame.K_a]:
+            self.player.vel.x=-PLAYER_SPEED
+        elif keys[pygame.K_d]:
+            self.player.vel.x=PLAYER_SPEED
+        else:
+            self.player.vel.x=0
+
+        if keys[pygame.K_w]:
+            self.player.vel.y=-PLAYER_SPEED
+        elif keys[pygame.K_s]:
+            self.player.vel.y=PLAYER_SPEED
+        else:
+            self.player.vel.y=0
 
     def update(self):
         if self.state==State.EXIT:
             self.running=False
 
-        self.dt=self.clock.tick(TARGET_FPS)
+        if self.state==State.PLAYING:
+            self.entities.update(self.dt)
+
+        self.dt=(self.clock.tick(TARGET_FPS)/1000)
         self.fps=self.clock.get_fps()
 
-        self.playerRect.x+=(self.dx*self.dt)
-        self.playerRect.y+=(self.dy*self.dt)
-
     def render(self):
-        self.screen.blit(self.player, self.playerRect)
-        pygame.display.update()
+        self.screen.fill((0, 0, 0))
+
+        if self.state==State.PLAYING:
+            self.entities.draw(self.screen)
+
+        pygame.display.flip()
 
     def shutdown(self):
         pygame.mixer.quit()
