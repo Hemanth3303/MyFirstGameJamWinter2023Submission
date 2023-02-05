@@ -5,7 +5,7 @@ from random import randint
 from config import *
 from states import *
 from player import *
-from pipe import *
+from block import *
 
 class Game:
     def __init__(self):
@@ -14,10 +14,12 @@ class Game:
         pygame.display.set_caption("My First Game Jam Winter 2023 Submission")
         self.screen=pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.DOUBLEBUF)
         self.clock=pygame.time.Clock()
-        self.state=State.PLAYING
+        self.font=pygame.font.Font("./res/fonts/consola.ttf", 24)
+        self.state=State.MENU
         self.player=Player((SCREEN_WIDTH/2, SCREEN_HEIGHT-100), (20, 20))
-        self.pipes=[]
+        self.blocks=[]
         self.pipe_timer=0
+        self.score=0
 
         self.dt=0
         self.fps=0
@@ -31,6 +33,11 @@ class Game:
         keys=pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             self.state=State.EXIT
+        if keys[pygame.K_SPACE] and self.state==State.MENU:
+            self.state=State.PLAYING
+        if keys[pygame.K_r] and self.state==State.GAMEOVER:
+            self.restart()
+            self.state=State.PLAYING
 
         # player movement
         if keys[pygame.K_a]:
@@ -39,35 +46,53 @@ class Game:
             self.player.vel.x=PLAYER_SPEED
 
     def update(self):
-        if self.state==State.EXIT:
-            self.running=False
-
         self.dt=(self.clock.tick(TARGET_FPS)/1000)
         self.fps=self.clock.get_fps()
 
-        self.pipe_timer+=self.dt
-
-        if self.pipe_timer>0.5:
-            self.spawn_pipes()
-            self.pipe_timer=0
-
-        if self.state==State.PLAYING:
-            self.player.update(self.dt)
-            for pipe in self.pipes:
-                pipe.update(self.dt)
-                if pygame.sprite.collide_rect(pipe, self.player):
-                    self.state=State.GAMEOVER
-                if pipe.rect.y>SCREEN_HEIGHT:
-                    self.pipes.remove(pipe)
-        # print(f"no of pipes={len(self.pipes)}")
+        match self.state:
+            case State.MENU:
+                pass
+            case State.PLAYING:
+                self.pipe_timer+=self.dt
+                if self.pipe_timer>0.5:
+                    self.spawn_pipes()
+                    self.pipe_timer=0
+                self.player.update(self.dt)
+                for pipe in self.blocks:
+                    pipe.update(self.dt)
+                    if pygame.sprite.collide_rect(pipe, self.player):
+                        self.state=State.GAMEOVER
+                    if pipe.rect.y>SCREEN_HEIGHT:
+                        self.blocks.remove(pipe)
+                        self.score+=1
+                # print(f"no of blocks={len(self.blocks)}")
+            case State.GAMEOVER:
+                pass
+            case State.EXIT:
+                self.running=False
 
     def render(self):
-        self.screen.fill((0, 0, 0))
+        self.screen.fill(BLACK)
 
-        if self.state==State.PLAYING:
-            self.player.draw(self.screen)
-            for pipe in self.pipes:
-                pipe.draw(self.screen)
+        match self.state:
+            case State.MENU:
+                self.drawText("Made Using Python And Pygame", (SCREEN_WIDTH/2, SCREEN_HEIGHT/3.7))
+                self.drawText("For 'My First Game Jam Winter 2023'", (SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
+                self.drawText("Instructions:", (SCREEN_WIDTH/2, SCREEN_HEIGHT/2.25))
+                self.drawText("Press Space To Start", (SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
+                self.drawText("Press A To Move Left And D To Right", (SCREEN_WIDTH/2, SCREEN_HEIGHT/1.75))
+                self.drawText("Avoid Falling Red Rectangles", (SCREEN_WIDTH/2, SCREEN_HEIGHT/1.5))
+            case State.PLAYING:
+                self.drawText("Score="+str(self.score), (50, 15))
+                self.player.draw(self.screen)
+                for pipe in self.blocks:
+                    pipe.draw(self.screen)
+            case State.GAMEOVER:
+                self.drawText("Game Over", (SCREEN_WIDTH/2, SCREEN_HEIGHT/3))
+                self.drawText("Final Score="+str(self.score), (SCREEN_WIDTH/2, SCREEN_HEIGHT/2.5))
+                self.drawText("Press R To Restart", (SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
+            case State.EXIT:
+                pass
 
         pygame.display.flip()
 
@@ -77,10 +102,21 @@ class Game:
         sys.exit(0)
 
     def spawn_pipes(self):
-        pipe_width=randint(50, 50)
-        pipe_height=randint(50, 50)
+        pipe_width=randint(20, 100)
+        pipe_height=randint(20, 100)
 
         y=-pipe_height
         x=randint(0, SCREEN_WIDTH-pipe_width)
 
-        self.pipes.append(Pipe((x, y), (pipe_width, pipe_height)))
+        self.blocks.append(Pipe((x, y), (pipe_width, pipe_height)))
+
+    def drawText(self, text_str, pos):
+        text=self.font.render(text_str, True, WHITE, BLACK)
+        textRect=text.get_rect()
+        textRect.center=pos
+        self.screen.blit(text, textRect)
+
+    def restart(self):
+        self.player=Player((SCREEN_WIDTH/2, SCREEN_HEIGHT-100), (20, 20))
+        self.score=0
+        self.blocks=[]
