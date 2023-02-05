@@ -14,8 +14,8 @@ class Game:
         pygame.display.set_caption("My First Game Jam Winter 2023 Submission")
         self.screen=pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.DOUBLEBUF)
         self.clock=pygame.time.Clock()
-        self.font=pygame.font.Font("./res/fonts/consola.ttf", 24)
-        # self.font=pygame.font.SysFont("Arial", 24)# for web
+        self.font=pygame.font.Font("./res/fonts/consola.ttf", 24) #disable for web
+        # self.font=pygame.font.SysFont("Arial", 24) #enable for web
         self.state=State.MENU
         self.player=Player((SCREEN_WIDTH/2, SCREEN_HEIGHT-100), (20, 20))
         self.blocks=[]
@@ -33,7 +33,7 @@ class Game:
 
         keys=pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
-            self.state=State.EXIT
+            self.state=State.EXIT #disable for web
         if keys[pygame.K_SPACE] and self.state==State.MENU:
             self.state=State.PLAYING
         if keys[pygame.K_r] and self.state==State.GAMEOVER:
@@ -83,7 +83,7 @@ class Game:
                 self.drawText("Press Space To Start", (SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
                 self.drawText("Press A To Move Left And D To Right", (SCREEN_WIDTH/2, SCREEN_HEIGHT/1.75))
                 self.drawText("Avoid Falling Red Rectangles", (SCREEN_WIDTH/2, SCREEN_HEIGHT/1.5))
-                self.drawText("Press Esc to Quit", (SCREEN_WIDTH/2, SCREEN_HEIGHT/1.25))
+                self.drawText("Press Esc to Quit", (SCREEN_WIDTH/2, SCREEN_HEIGHT/1.25))#disable for web
             case State.PLAYING:
                 self.drawText("Score="+str(self.score), (50, 15))
                 self.player.draw(self.screen)
