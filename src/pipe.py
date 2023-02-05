@@ -7,10 +7,10 @@ class Pipe:
         self.sprite.fill(RED)
         self.rect=pygame.Rect(pos, size)
 
-        self.vel=pygame.Vector2(1, 0)
+        self.vel=pygame.Vector2(0, 1)
 
     def update(self, dt):
-        self.rect.topleft-=self.vel*PIPE_SPEED*dt
+        self.rect.topleft+=self.vel*PIPE_SPEED*dt
 
     def draw(self, target_surface):
         target_surface.blit(self.sprite, self.rect)

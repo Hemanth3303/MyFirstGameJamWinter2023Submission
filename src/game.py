@@ -15,9 +15,8 @@ class Game:
         self.screen=pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.DOUBLEBUF)
         self.clock=pygame.time.Clock()
         self.state=State.PLAYING
-        self.player=Player((100, 100), (10, 10))
-        self.top_pipes=[]
-        self.bottom_pipes=[]
+        self.player=Player((SCREEN_WIDTH/2, SCREEN_HEIGHT-100), (20, 20))
+        self.pipes=[]
         self.pipe_timer=0
 
         self.dt=0
@@ -38,10 +37,6 @@ class Game:
             self.player.vel.x=-PLAYER_SPEED
         elif keys[pygame.K_d]:
             self.player.vel.x=PLAYER_SPEED
-        if keys[pygame.K_w]:
-            self.player.vel.y=-PLAYER_SPEED
-        elif keys[pygame.K_s]:
-            self.player.vel.y=PLAYER_SPEED
 
     def update(self):
         if self.state==State.EXIT:
@@ -52,32 +47,27 @@ class Game:
 
         self.pipe_timer+=self.dt
 
-        if self.pipe_timer>1:
+        if self.pipe_timer>0.5:
             self.spawn_pipes()
             self.pipe_timer=0
 
         if self.state==State.PLAYING:
             self.player.update(self.dt)
-            for top_pipe in self.top_pipes:
-                top_pipe.update(self.dt)
-                if top_pipe.rect.x+top_pipe.rect.width<0:
-                    self.top_pipes.remove(top_pipe)
-            for bottom_pipe in self.bottom_pipes:
-                bottom_pipe.update(self.dt)
-                if bottom_pipe.rect.x+bottom_pipe.rect.width<0:
-                    self.bottom_pipes.remove(bottom_pipe)
-
-        print(f'''TOP PIPES: {len(self.top_pipes)}, BOTTOM PIPES: {len(self.bottom_pipes)}''')
+            for pipe in self.pipes:
+                pipe.update(self.dt)
+                if pygame.sprite.collide_rect(pipe, self.player):
+                    self.state=State.GAMEOVER
+                if pipe.rect.y>SCREEN_HEIGHT:
+                    self.pipes.remove(pipe)
+        # print(f"no of pipes={len(self.pipes)}")
 
     def render(self):
         self.screen.fill((0, 0, 0))
 
         if self.state==State.PLAYING:
             self.player.draw(self.screen)
-            for top_pipe in self.top_pipes:
-                top_pipe.draw(self.screen)
-            for bottom_pipe in self.bottom_pipes:
-                bottom_pipe.draw(self.screen)
+            for pipe in self.pipes:
+                pipe.draw(self.screen)
 
         pygame.display.flip()
 
@@ -87,16 +77,10 @@ class Game:
         sys.exit(0)
 
     def spawn_pipes(self):
-        pipe_gap=randint(30, 120)
-        top_x=SCREEN_WIDTH+PIPE_WIDTH
-        top_y=randint(-PIPE_HEIGHT/4, 0)
-        top=Pipe((top_x, top_y), (PIPE_WIDTH, PIPE_HEIGHT))
-        self.top_pipes.append(top)
-        # print("spawned top")
+        pipe_width=randint(50, 50)
+        pipe_height=randint(50, 50)
 
-        bottom_x=top_x
-        bottom_y=top_y+pipe_gap+PIPE_HEIGHT
-        PIPE_PADDING=200 # to make sure bottom pipe doesn't lift off the screen bottom
-        bottom=Pipe((bottom_x, bottom_y), (PIPE_WIDTH, PIPE_HEIGHT+PIPE_PADDING))
-        self.bottom_pipes.append(bottom)
-        # print("spawned bottom")
+        y=-pipe_height
+        x=randint(0, SCREEN_WIDTH-pipe_width)
+
+        self.pipes.append(Pipe((x, y), (pipe_width, pipe_height)))
